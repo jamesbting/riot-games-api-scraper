@@ -1,1 +1,4 @@
-region: 'americas'
+api:
+  accountRegion: 'americas'
+  summonerRegion: 'na1'
+  matchRegion: 'na1'
