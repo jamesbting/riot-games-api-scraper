@@ -18,6 +18,7 @@
   "homepage": "https://github.com/jamesbting/riot-games-api-scraper#readme",
   "dependencies": {
     "config": "^3.3.3",
+    "flat": "^5.0.2",
     "js-yaml": "^4.0.0",
     "lodash": "^4.17.20",
     "request": "^2.88.2",

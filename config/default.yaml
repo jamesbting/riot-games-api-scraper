@@ -2,3 +2,8 @@ api:
   accountRegion: 'americas'
   summonerRegion: 'na1'
   matchRegion: 'na1'
+
+writeToFile: 
+  enabled: true
+  path: './data/dataset'
+  encoding: 'utf8'
