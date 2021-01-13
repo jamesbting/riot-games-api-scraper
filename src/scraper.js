@@ -40,17 +40,13 @@ class Scraper {
 	async getMatchHistory(accountId) {
 		return new Promise((resolve, reject) => {
 			request(
-				`${GET_MATCH_HISTORY_URL}${accountId}?api_key=${this.apiKey}`
+				`${GET_MATCH_HISTORY_URL}${accountId}?queue=400&queue=420&queue=430&queue=440&api_key=${this.apiKey}`
 			)
 				.catch((err) => reject(err))
 				.then((body) => {
 					const responseBody = JSON.parse(body)
 					const matchHistory = responseBody.matches
-					matchHistory.forEach((match) => {
-						if(!this.visitedMatches.has(match.gameId)) {
-							this.stack.push(match.gameId)
-						}
-					})
+					matchHistory.forEach((match) => this.stack.push(match.gameId))
 					resolve()
 				})
 		})
@@ -74,18 +70,26 @@ class Scraper {
 	async scrape() {
 		while(this.stack.length !== 0) {
 			const currentMatch = this.stack.pop()
-			await this.getMatchDataByMatchID(currentMatch, Scraper.next)
+			if(!this.visitedMatches.has(currentMatch)) {
+				await this.getMatchDataByMatchID(currentMatch, Scraper.next)
+			}
+			await sleep(config.get('writeToFile.pauseTime'))
 		}
 	}
 
 	static next(scraper, matchData) {
-		console.log('Going to the next player...')
+		console.log('Going to the next match...')
 		const participants = matchData.participantIdentities
 		const n = participants.length
 		const selectedParticipant = participants[Math.floor(Math.random() * n)]
 		const nextPlayer = selectedParticipant.player
 		scraper.getMatchHistory(nextPlayer.currentAccountId)
 	}
+}
+
+
+function sleep(ms) {
+	return new Promise(resolve => setTimeout(resolve, ms))
 }
 
 module.exports = Scraper

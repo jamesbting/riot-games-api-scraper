@@ -2,7 +2,7 @@ const fs = require('fs')
 const _ = require('lodash')
 const config = require('config')
 const date = new Date()
-const filePath = `${config.get('writeToFile.path')}-${date.getUTCFullYear()}-${date.getUTCDate()}.csv`
+const filePath = config.get('writeToFile.path')
 const encoding = config.get('writeToFile.encoding')
 const flatten = require('flat').flatten
 
@@ -18,7 +18,7 @@ function startup(visitedMatches) {
 
 
 function write(body) {
-    if(!config.get('writeToFile.enabled') || (body.gameType !== 'CLASSIC' && body.mapId !== 1)) {
+    if(!config.get('writeToFile.enabled')) {
         return
     }
     const cleanedBody = _.cloneDeep(body)

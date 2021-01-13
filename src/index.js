@@ -1,4 +1,3 @@
-/* eslint-disable semi */
 // get CLI args and parse
 
 const Scraper = require('./scraper')

@@ -5,6 +5,7 @@ api:
 
 writeToFile: 
   enabled: true
-  path: './data/dataset'
+  path: '../dataset.csv'
   encoding: 'utf8'
   hideIdentities: true
+  pauseTime: 2500
