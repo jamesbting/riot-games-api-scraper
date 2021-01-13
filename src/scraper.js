@@ -41,7 +41,7 @@ class Scraper {
 	async getMatchHistory(accountId) {
 		return new Promise((resolve, reject) => {
 			request(
-				`${GET_MATCH_HISTORY_URL}${accountId}?queue=400&queue=420&queue=430&queue=440&api_key=${this.apiKey}`
+				`${GET_MATCH_HISTORY_URL}${accountId}?queue=420&api_key=${this.apiKey}`
 			)
 			.then((body) => {
 				const responseBody = JSON.parse(body)
@@ -76,8 +76,8 @@ class Scraper {
 				try{
 					await this.getMatchDataByMatchID(currentMatch, Scraper.next)
 				} catch(err) {
-					console.log('Encountered an error.')
-					console.error(err)
+					console.log(`Encountered an error with match ${currentMatch}`)
+					console.error(JSON.parse(err.error))
 					await sleep(config.get('writeToFile.errorTime'))
 				}
 			}

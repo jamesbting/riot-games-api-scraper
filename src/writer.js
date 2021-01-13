@@ -25,10 +25,16 @@ function write(body) {
     if(config.get('writeToFile.hideIdentities')) {
         delete cleanedBody.participantIdentities
     }
+
+    if(config.get('writeToFile.removeTimelines')) {
+        cleanedBody.participants.forEach((participant) => {
+            delete participant.timeline
+        })
+    }
     const flattenedBody = flatten(cleanedBody)
     try{
         fs.appendFileSync(filePath, buildString(flattenedBody), encoding)
-        console.log(`Finished writing match ${flattenedBody.gameId}. Moving on to the next match.`)
+        console.log(`Finished writing match ${flattenedBody.gameId}.`)
     } catch(err) {
         throw err
     }
