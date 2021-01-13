@@ -50,7 +50,6 @@ class Scraper {
 				resolve()
 			})
 			.catch((err) => reject(err))
-
 		})
 	}
 
@@ -74,7 +73,13 @@ class Scraper {
 		while(this.stack.length !== 0) {
 			const currentMatch = this.stack.pop()
 			if(!this.visitedMatches.has(currentMatch)) {
-				await this.getMatchDataByMatchID(currentMatch, Scraper.next)
+				try{
+					await this.getMatchDataByMatchID(currentMatch, Scraper.next)
+				} catch(err) {
+					console.log('Encountered an error.')
+					console.error(err)
+					await sleep(config.get('writeToFile.errorTime'))
+				}
 			}
 			await sleep(config.get('writeToFile.pauseTime'))
 		}
@@ -92,7 +97,10 @@ class Scraper {
 
 
 function sleep(ms) {
-	return new Promise(resolve => setTimeout(resolve, ms))
+	return new Promise(resolve => {
+		console.log(`Waiting for ${ms} ms...`)
+		setTimeout(resolve, ms)
+	})
 }
 
 module.exports = Scraper
