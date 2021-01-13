@@ -28,12 +28,13 @@ class Scraper {
 			request(
 				`${GET_ACCOUNT_ID_URL}${summonerName}?api_key=${this.apiKey}`
 			)
-				.catch((err) => reject(err))
-				.then((body) => {
-					const responseBody = JSON.parse(body)
-					this.currentPlayer = responseBody.accountId
-					resolve()
-				})
+			.then((body) => {
+				const responseBody = JSON.parse(body)
+				this.currentPlayer = responseBody.accountId
+				resolve()
+			})
+			.catch((err) => reject(err))
+
 		})
 	}
 
@@ -42,20 +43,20 @@ class Scraper {
 			request(
 				`${GET_MATCH_HISTORY_URL}${accountId}?queue=400&queue=420&queue=430&queue=440&api_key=${this.apiKey}`
 			)
-				.catch((err) => reject(err))
-				.then((body) => {
-					const responseBody = JSON.parse(body)
-					const matchHistory = responseBody.matches
-					matchHistory.forEach((match) => this.stack.push(match.gameId))
-					resolve()
-				})
+			.then((body) => {
+				const responseBody = JSON.parse(body)
+				const matchHistory = responseBody.matches
+				matchHistory.forEach((match) => this.stack.push(match.gameId))
+				resolve()
+			})
+			.catch((err) => reject(err))
+
 		})
 	}
 
 	async getMatchDataByMatchID(matchID, callback) {
 		return new Promise((resolve, reject) => {
 			request(`${GET_MATCH_DATA_URL}${matchID}?api_key=${this.apiKey}`)
-			.catch((err) => reject(err))
 			.then((body) => {
 				const responseBody = JSON.parse(body)
 				this.visitedMatches.add(matchID)
@@ -63,6 +64,8 @@ class Scraper {
 				callback(this, responseBody)
 				resolve()
 			})
+			.catch((err) => reject(err))
+
 		})
 	}
 

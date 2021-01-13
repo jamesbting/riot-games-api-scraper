@@ -9,3 +9,4 @@ writeToFile:
   encoding: 'utf8'
   hideIdentities: true
   pauseTime: 2500
+  errorTime: 10000
