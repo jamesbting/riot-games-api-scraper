@@ -2,81 +2,90 @@ const _ = require('lodash')
 const request = require('request-promise')
 const config = require('config')
 const writer = require('./writer')
-const ACCOUNT_REGION = config.get('api.accountRegion')
 const SUMMONER_REGION = config.get('api.summonerRegion')
 const MATCH_REGION = config.get('api.matchRegion')
 
-const GET_PUUID_BY_RIOT_ID_URL = `https://${ACCOUNT_REGION}.api.riotgames.com/riot/account/v1/accounts/by-riot-id/`
-const GET_ACCOUNT_ID_URL = `https://${SUMMONER_REGION}.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/`
+const GET_ACCOUNT_ID_URL = `https://${SUMMONER_REGION}.api.riotgames.com/lol/summoner/v4/summoners/by-name/`
 const GET_MATCH_HISTORY_URL = `https://${MATCH_REGION}.api.riotgames.com/lol/match/v4/matchlists/by-account/`
 const GET_MATCH_DATA_URL = `https://${MATCH_REGION}.api.riotgames.com/lol/match/v4/matches/`
 class Scraper {
 	constructor(apiKey, seedPlayer) {
 		this.apiKey = apiKey
-		this.currentPlayer = _.cloneDeep(seedPlayer)
-		this.intializeValues()
-		writer.startup()
+		this.currentPlayer = {}
+		this.visitedMatches = new Set()
+		this.stack = []
+		writer.startup(this.visitedMatches)
+		this.intialize(seedPlayer)
 	}
 
-	async intializeValues() {
-		await this.getPUUID()
-		await this.getAccountID()
-		await this.getMatchHistory()
-		await this.getMatchDataByMatchID(3601411033)
+	async intialize(seedPlayer) {
+		await this.getAccountID(seedPlayer)
+		await this.getMatchHistory(this.currentPlayer)
 	}
 
-	async getPUUID() {
+	async getAccountID(summonerName) {
 		return new Promise((resolve, reject) => {
 			request(
-				`${GET_PUUID_BY_RIOT_ID_URL}${this.currentPlayer.gameName}/${this.currentPlayer.tagLine}?api_key=${this.apiKey}`
+				`${GET_ACCOUNT_ID_URL}${summonerName}?api_key=${this.apiKey}`
 			)
 				.catch((err) => reject(err))
 				.then((body) => {
-					this.currentPlayer.puuid = JSON.parse(body).puuid
+					const responseBody = JSON.parse(body)
+					this.currentPlayer = responseBody.accountId
 					resolve()
 				})
 		})
 	}
 
-	async getAccountID() {
+	async getMatchHistory(accountId) {
 		return new Promise((resolve, reject) => {
 			request(
-				`${GET_ACCOUNT_ID_URL}${this.currentPlayer.puuid}?api_key=${this.apiKey}`
+				`${GET_MATCH_HISTORY_URL}${accountId}?api_key=${this.apiKey}`
 			)
-				.catch((err) => reject())
+				.catch((err) => reject(err))
 				.then((body) => {
 					const responseBody = JSON.parse(body)
-					this.currentPlayer.accountId = responseBody.accountId
+					const matchHistory = responseBody.matches
+					matchHistory.forEach((match) => {
+						if(!this.visitedMatches.has(match.gameId)) {
+							this.stack.push(match.gameId)
+						}
+					})
 					resolve()
 				})
 		})
 	}
 
-	async getMatchHistory() {
+	async getMatchDataByMatchID(matchID, callback) {
 		return new Promise((resolve, reject) => {
-			request(
-				`${GET_MATCH_HISTORY_URL}${this.currentPlayer.accountId}?api_key=${this.apiKey}`
-			)
-				.catch((err) => reject())
-				.then((body) => {
-					const responseBody = JSON.parse(body)
-					this.currentPlayer.matchHistory = responseBody.matches
-					resolve()
-				})
-		})
-	}
-
-	async getMatchDataByMatchID(matchID) {
-		return new Promise((resolve, reject) => {
-			request(`${GET_MATCH_DATA_URL}${matchID}?api_key=${this.apiKey}`).catch((err) => reject(err)).then((body) => {
+			request(`${GET_MATCH_DATA_URL}${matchID}?api_key=${this.apiKey}`)
+			.catch((err) => reject(err))
+			.then((body) => {
 				const responseBody = JSON.parse(body)
+				this.visitedMatches.add(matchID)
 				writer.write(responseBody)
+				callback(this, responseBody)
 				resolve()
 			})
 		})
 	}
 
-	scrape() {}
+
+	async scrape() {
+		while(this.stack.length !== 0) {
+			const currentMatch = this.stack.pop()
+			await this.getMatchDataByMatchID(currentMatch, Scraper.next)
+		}
+	}
+
+	static next(scraper, matchData) {
+		console.log('Going to the next player...')
+		const participants = matchData.participantIdentities
+		const n = participants.length
+		const selectedParticipant = participants[Math.floor(Math.random() * n)]
+		const nextPlayer = selectedParticipant.player
+		scraper.getMatchHistory(nextPlayer.currentAccountId)
+	}
 }
 
 module.exports = Scraper

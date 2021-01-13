@@ -3,11 +3,9 @@
 
 const Scraper = require('./scraper')
 
-const cliArgs = process.argv.slice(2) // should be: [API key, seed name, tagline]
+const cliArgs = process.argv.slice(2) // should be: [API key, seed name]
 const apiKey = cliArgs[0]
-const seedPlayer = {
-	gameName: cliArgs[1],
-	tagLine: cliArgs[2],
-}
+const seedPlayer = cliArgs[1]
 
 const scraper = new Scraper(apiKey, seedPlayer)
+setTimeout(() => scraper.scrape(), 1000)
