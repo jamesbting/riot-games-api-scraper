@@ -77,7 +77,7 @@ class Scraper {
 					await this.getMatchDataByMatchID(currentMatch, Scraper.next)
 				} catch(err) {
 					console.log(`Encountered an error with match ${currentMatch}`)
-					console.error(JSON.parse(err.error))
+					console.error(err.error)
 					await sleep(config.get('writeToFile.errorTime'))
 				}
 			}
