@@ -1,0 +1,19 @@
+This scraper will be designed to run inside a Docker container, and will continuously pull data from the Riot API.
+
+
+The way that the scraper will pull data is the following. On startup, it will require 3 arguments:
+    1. The first argument is the API key for the Riot Games API
+    2. The second argument is the in-game name of the "seed" player (the name that other players see)
+    3. The third argument is the tag line of said player
+
+
+The script will then take the game name and the tagline of the seed player and obtain a PUUID. Using that PUUID, the script will then obtain an accountID.
+
+That accountID can then be used for obtaining a history of matches for that player. Then, the script will select a game at random, and then obtain a gameID for that game.
+Using the gameID, data about the match can be obtained, and then the match data and the label can be stored. The label will be a binary classification which will be a 1 
+if the selected player was on the winning team for the selected match, and then 0 otherwise. 
+
+Since the set obtained by taking the Cartesian product of the set of matches and players can be thought of as a undirected cyclic graph where matches are nodes and players are edges. Therefore, a
+depth-first approach to moving on to the next match using a player would prevent the script from obtaining matches from only one player, and therefore limit the possibility of overfitting
+when training models. 
+

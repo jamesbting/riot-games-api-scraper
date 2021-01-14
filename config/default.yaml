@@ -1,0 +1,13 @@
+api:
+  accountRegion: 'americas'
+  summonerRegion: 'na1'
+  matchRegion: 'na1'
+
+writeToFile: 
+  enabled: true
+  path: '../pre-cleaning-dataset.csv'
+  encoding: 'utf8'
+  hideIdentities: true
+  removeTimelines: true
+  pauseTime: 2500
+  errorTime: 7500
