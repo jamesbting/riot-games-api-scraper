@@ -9,18 +9,17 @@ const GET_ACCOUNT_ID_URL = `https://${SUMMONER_REGION}.api.riotgames.com/lol/sum
 const GET_MATCH_HISTORY_URL = `https://${MATCH_REGION}.api.riotgames.com/lol/match/v4/matchlists/by-account/`
 const GET_MATCH_DATA_URL = `https://${MATCH_REGION}.api.riotgames.com/lol/match/v4/matches/`
 class Scraper {
-	constructor(apiKey, seedPlayer) {
+	constructor(apiKey, seedMatch) {
 		this.apiKey = apiKey
 		this.currentPlayer = {}
 		this.visitedMatches = new Set()
 		this.stack = []
-		writer.startup(this.visitedMatches)
-		this.intialize(seedPlayer)
+		writer.startup()
+		this.intialize(seedMatch)
 	}
 
-	async intialize(seedPlayer) {
-		await this.getAccountID(seedPlayer)
-		await this.getMatchHistory(this.currentPlayer)
+	intialize(seedMatch) {
+		this.stack.push(seedMatch)
 	}
 
 	async getAccountID(summonerName) {
@@ -34,7 +33,6 @@ class Scraper {
 				resolve()
 			})
 			.catch((err) => reject(err))
-
 		})
 	}
 

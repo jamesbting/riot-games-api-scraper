@@ -6,13 +6,9 @@ const filePath = config.get('writeToFile.path')
 const encoding = config.get('writeToFile.encoding')
 const flatten = require('flat').flatten
 
-function startup(visitedMatches) {
+function startup() {
     if(!fs.existsSync(filePath)) {
         fs.writeFileSync(filePath,'',encoding)
-    } else {
-        const contents = fs.readFileSync(filePath, encoding)
-        const matches = contents.split('\n')
-        matches.forEach((line) => visitedMatches.add(line.split(',')[0]))
     }
 }
 
@@ -50,3 +46,4 @@ function buildString(flattenedObject) {
 }
 
 module.exports = {write, startup}
+
