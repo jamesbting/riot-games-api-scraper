@@ -25,6 +25,7 @@ function write(body) {
     if(config.get('writeToFile.removeTimelines')) {
         cleanedBody.participants.forEach((participant) => {
             delete participant.timeline
+            delete participant.masteries
         })
     }
     const flattenedBody = flatten(cleanedBody)

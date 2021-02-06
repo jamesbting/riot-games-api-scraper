@@ -5,7 +5,7 @@ api:
 
 writeToFile: 
   enabled: true
-  path: '../pre-cleaning-dataset.csv'
+  path: '../data/pre-cleaning-dataset.csv'
   encoding: 'utf8'
   hideIdentities: true
   removeTimelines: true
